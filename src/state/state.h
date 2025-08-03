@@ -5,17 +5,33 @@
 class State
 {
 public:
-    State(
-        bool isBackHomeLightEnabled,
-        bool isRainActive,
-        float_t temperature,
-        float_t humidity
-    ) : _isBackHomeLightEnabled(isBackHomeLightEnabled),
-        _isRainActive(isRainActive),
-        _temperature(temperature),
-        _humidity(humidity) {}
-
     std::string marshalJSON();
+
+    void setIsBackHomeLightEnabled(bool isBackHomeLightEnabled)
+    {
+        _isBackHomeLightEnabled = isBackHomeLightEnabled;
+    }
+
+    void setIsRainActive(bool isRainActive)
+    {
+        _isRainActive = isRainActive;
+    }
+
+    void setTemperature(float_t temperature)
+    {
+        _temperature = temperature;
+    }
+
+    void setHumidity(float_t humidity)
+    {
+        _humidity = humidity;
+    }
+
+    bool operator==(State& other);
+    bool operator!=(State& other)
+    {
+        return !(*this == other);
+    }
 
 private:
     bool _isBackHomeLightEnabled = false;

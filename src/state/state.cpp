@@ -24,3 +24,11 @@ std::string State::marshalJSON()
 
     return payload;
 }
+
+bool State::operator==(State& other)
+{
+    return (*this)._isBackHomeLightEnabled == other._isBackHomeLightEnabled
+        && (*this)._isRainActive == other._isRainActive
+        && (*this)._temperature == other._temperature
+        && (*this)._humidity == other._humidity;
+}

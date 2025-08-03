@@ -6,6 +6,7 @@
 #include <discovery.h>
 #include <healthcheck.h>
 #include <mqtt.h>
+#include "state/state_mgr.h"
 
 #include "defines.h"
 #include "config.h"
@@ -14,7 +15,7 @@
 #include "sensor/climate.h"
 #include "sensor/rain.h"
 #include "state/producer.h"
-#include "state/state_mgr.h"
+#include "state/state.h"
 #include "relay/relay.h"
 #include "web/handler.h"
 
@@ -25,7 +26,7 @@ EDMQTT::MQTT mqtt(configMgr.getConfig().mqtt);
 EDHA::DiscoveryMgr discoveryMgr;
 Relay backHomeLightRelay(&discoveryMgr);
 StateProducer stateProducer(&mqtt);
-StateMgr stateMgr(&stateProducer);
+EDUtils::StateMgr<State> stateMgr(&stateProducer);
 StreetClimateSensor streetClimateSensor(&discoveryMgr, &stateMgr);
 RainSensor rainSensor(&discoveryMgr, &stateMgr);
 CommandConsumer commandConsumer(&backHomeLightRelay);
@@ -86,7 +87,7 @@ void setup()
 
     backHomeLightRelay.init(device, "Back home light", "backHomeLight", RELAY_BACK_HOME_LIGHT, false, configMgr.getConfig().mqttStateTopic, configMgr.getConfig().mqttCommandTopic);
     backHomeLightRelay.onActivate([](bool isOn) {
-        stateMgr.setIsBackHomeLightEnabled(isOn);
+        stateMgr.getState().setIsBackHomeLightEnabled(isOn);
     });
 
     rainSensor.init(device, configMgr.getConfig().mqttStateTopic, RAIN_SENSOR_PIN, true);

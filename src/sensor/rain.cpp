@@ -1,3 +1,4 @@
+#include "Utils.h"
 #include "rain.h"
 
 void RainSensor::init(EDHA::Device* device, std::string stateTopic, int pin, bool nc)
@@ -25,9 +26,9 @@ void RainSensor::loop()
     if ((_lastUpdateTime + 60000) < millis()) {
         int pinValue = readPinValue();
         if (_nc) {
-            _stateMgr->setIsRainActive(pinValue == 1);
+            _stateMgr->getState().setIsRainActive(pinValue == 1);
         } else {
-            _stateMgr->setIsRainActive(pinValue == 0);
+            _stateMgr->getState().setIsRainActive(pinValue == 0);
         }
 
         _lastUpdateTime = millis();
