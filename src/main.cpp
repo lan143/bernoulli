@@ -25,11 +25,12 @@ EDHealthCheck::HealthCheck healthCheck;
 EDMQTT::MQTT mqtt(configMgr.getConfig().mqtt);
 EDHA::DiscoveryMgr discoveryMgr;
 Relay backHomeLightRelay(&discoveryMgr);
+Relay atticLightRelay(&discoveryMgr);
 StateProducer stateProducer(&mqtt);
 EDUtils::StateMgr<State> stateMgr(&stateProducer);
 StreetClimateSensor streetClimateSensor(&discoveryMgr, &stateMgr);
 RainSensor rainSensor(&discoveryMgr, &stateMgr);
-CommandConsumer commandConsumer(&backHomeLightRelay);
+CommandConsumer commandConsumer(&backHomeLightRelay, &atticLightRelay);
 Handler handler(&configMgr, &networkMgr, &healthCheck);
 
 void setup()
@@ -88,6 +89,11 @@ void setup()
     backHomeLightRelay.init(device, "Back home light", "backHomeLight", RELAY_BACK_HOME_LIGHT, false, configMgr.getConfig().mqttStateTopic, configMgr.getConfig().mqttCommandTopic);
     backHomeLightRelay.onActivate([](bool isOn) {
         stateMgr.getState().setIsBackHomeLightEnabled(isOn);
+    });
+
+    atticLightRelay.init(device, "Attic light", "atticLight", RELAY_ATTIC_LIGHT, false, configMgr.getConfig().mqttStateTopic, configMgr.getConfig().mqttCommandTopic);
+    atticLightRelay.onActivate([](bool isOn) {
+        stateMgr.getState().setIsAtticLightEnabled(isOn);
     });
 
     rainSensor.init(device, configMgr.getConfig().mqttStateTopic, RAIN_SENSOR_PIN, true);

@@ -16,4 +16,8 @@ void CommandConsumer::consume(std::string payload)
     if (command.hasEnableBackHomeLight()) {
         _backHomeLightRelay->activate(command.getEnableBackHomeLight());
     }
+
+    if (command.hasEnableAtticLight()) {
+        _atticLightRelay->activate(command.getEnableAtticLight());
+    }
 }

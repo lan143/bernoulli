@@ -12,6 +12,11 @@ bool Command::unmarshalJSON(const char* data)
             _enableBackHomeLight = root[F("backHomeLightRelay")].as<std::string>() == "true";
         }
 
+        if (root.containsKey(F("atticLightRelay"))) {
+            _hasEnableAtticLight = true;
+            _enableAtticLight = root[F("atticLightRelay")].as<std::string>() == "true";
+        }
+
         return true;
     });
 }

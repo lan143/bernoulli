@@ -21,7 +21,7 @@
 #define RS485TX  32
 
 #define RELAY_BACK_HOME_LIGHT 2
-#define RELAY_UNUSED 15
+#define RELAY_ATTIC_LIGHT     15
 
 #define RAIN_SENSOR_PIN 36
 #define DHT22_PIN 33

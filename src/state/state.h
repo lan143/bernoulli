@@ -12,6 +12,11 @@ public:
         _isBackHomeLightEnabled = isBackHomeLightEnabled;
     }
 
+    void setIsAtticLightEnabled(bool enabled)
+    {
+        _isAtticLightEnabled = enabled;
+    }
+
     void setIsRainActive(bool isRainActive)
     {
         _isRainActive = isRainActive;
@@ -35,6 +40,7 @@ public:
 
 private:
     bool _isBackHomeLightEnabled = false;
+    bool _isAtticLightEnabled = false;
     bool _isRainActive = false;
     float_t _temperature = 0.0f;
     float_t _humidity = 0.0f;

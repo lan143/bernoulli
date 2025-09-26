@@ -12,6 +12,12 @@ std::string State::marshalJSON()
             entity[F("backHomeLightRelay")] = "false";
         }
 
+        if (_isAtticLightEnabled) {
+            entity[F("atticLightRelay")] = "true";
+        } else {
+            entity[F("atticLightRelay")] = "false";
+        }
+
         if (_isRainActive) {
             entity[F("isRainActive")] = "true";
         } else {
@@ -28,6 +34,7 @@ std::string State::marshalJSON()
 bool State::operator==(State& other)
 {
     return (*this)._isBackHomeLightEnabled == other._isBackHomeLightEnabled
+        && (*this)._isAtticLightEnabled == other._isAtticLightEnabled
         && (*this)._isRainActive == other._isRainActive
         && (*this)._temperature == other._temperature
         && (*this)._humidity == other._humidity;
