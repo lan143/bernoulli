@@ -32,10 +32,10 @@ void StreetClimateSensor::init(EDHA::Device* device, std::string stateTopic, int
 
 void StreetClimateSensor::loop()
 {
-    if ((_lastUpdateTime + 60000) < millis()) {
+    if ((_lastUpdateTime + 60000000) < esp_timer_get_time()) {
         _stateMgr->getState().setTemperature(_dht22->readTemperature());
         _stateMgr->getState().setHumidity(_dht22->readHumidity());
 
-        _lastUpdateTime = millis();
+        _lastUpdateTime = esp_timer_get_time();
     }
 }

@@ -23,7 +23,7 @@ void RainSensor::init(EDHA::Device* device, std::string stateTopic, int pin, boo
 
 void RainSensor::loop()
 {
-    if ((_lastUpdateTime + 60000) < millis()) {
+    if ((_lastUpdateTime + 60000000) < esp_timer_get_time()) {
         int pinValue = readPinValue();
         if (_nc) {
             _stateMgr->getState().setIsRainActive(pinValue == 1);
@@ -31,7 +31,7 @@ void RainSensor::loop()
             _stateMgr->getState().setIsRainActive(pinValue == 0);
         }
 
-        _lastUpdateTime = millis();
+        _lastUpdateTime = esp_timer_get_time();
     }
 }
 

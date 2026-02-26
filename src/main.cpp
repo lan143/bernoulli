@@ -6,12 +6,12 @@
 #include <discovery.h>
 #include <healthcheck.h>
 #include <mqtt.h>
-#include "state/state_mgr.h"
+#include <network/network.h>
+#include <state/state_mgr.h>
 
 #include "defines.h"
 #include "config.h"
 #include "command/command_consumer.h"
-#include "network/network.h"
 #include "sensor/climate.h"
 #include "sensor/rain.h"
 #include "state/producer.h"
@@ -20,9 +20,9 @@
 #include "web/handler.h"
 
 EDConfig::ConfigMgr<Config> configMgr(EEPROM_SIZE);
-NetworkMgr networkMgr(configMgr.getConfig(), true);
+EDNetwork::NetworkMgr networkMgr;
 EDHealthCheck::HealthCheck healthCheck;
-EDMQTT::MQTT mqtt(configMgr.getConfig().mqtt);
+EDMQTT::MQTT mqtt;
 EDHA::DiscoveryMgr discoveryMgr;
 Relay backHomeLightRelay(&discoveryMgr);
 Relay atticLightRelay(&discoveryMgr);
@@ -44,23 +44,23 @@ void setup()
 
     SPIFFS.begin(true);
 
-    configMgr.setDefault([](Config& config) {
-        snprintf(config.wifiAPSSID, WIFI_SSID_LEN, "Bernoulli_%s", EDUtils::getMacAddress().c_str());
-        snprintf(config.mqttStateTopic, MQTT_TOPIC_LEN, "bernoulli/%s/state", EDUtils::getChipID());
-        snprintf(config.mqttCommandTopic, MQTT_TOPIC_LEN, "bernoulli/%s/set", EDUtils::getChipID());
-        snprintf(config.mqttHADiscoveryPrefix, MQTT_TOPIC_LEN, "homeassistant");
+    configMgr.setDefault([](Config* config) {
+        snprintf(config->network.wifiAPSSID, WIFI_SSID_LEN, "Bernoulli_%s", EDUtils::getMacAddress().c_str());
+        snprintf(config->mqttStateTopic, MQTT_TOPIC_LEN, "bernoulli/%s/state", EDUtils::getChipID());
+        snprintf(config->mqttCommandTopic, MQTT_TOPIC_LEN, "bernoulli/%s/set", EDUtils::getChipID());
+        snprintf(config->mqttHADiscoveryPrefix, MQTT_TOPIC_LEN, "homeassistant");
     });
     configMgr.load();
 
-    networkMgr.init();
+    networkMgr.init(configMgr.getConfig()->network, true, ETH_ADDR, -1, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);
 
     ArduinoOTA.setPassword("somestrongpassword");
     ArduinoOTA.begin();
 
-    commandConsumer.init(configMgr.getConfig().mqttCommandTopic);
-    stateProducer.init(configMgr.getConfig().mqttStateTopic);
+    commandConsumer.init(configMgr.getConfig()->mqttCommandTopic);
+    stateProducer.init(configMgr.getConfig()->mqttStateTopic);
 
-    mqtt.init();
+    mqtt.init(configMgr.getConfig()->mqtt);
     networkMgr.OnConnect([&](bool isConnected) {
         if (isConnected) {
             mqtt.connect();
@@ -72,8 +72,8 @@ void setup()
     handler.init();
 
     discoveryMgr.init(
-        configMgr.getConfig().mqttHADiscoveryPrefix,
-        configMgr.getConfig().mqttIsHADiscovery,
+        configMgr.getConfig()->mqttHADiscoveryPrefix,
+        configMgr.getConfig()->mqttIsHADiscovery,
         [](std::string topicName, std::string payload) {
             return mqtt.publish(topicName.c_str(), payload.c_str(), true);
         }
@@ -86,18 +86,18 @@ void setup()
         ->setName(deviceName)
         ->setManufacturer(deviceManufacturer);
 
-    backHomeLightRelay.init(device, "Back home light", "backHomeLight", RELAY_BACK_HOME_LIGHT, false, configMgr.getConfig().mqttStateTopic, configMgr.getConfig().mqttCommandTopic);
+    backHomeLightRelay.init(device, "Back home light", "backHomeLight", RELAY_BACK_HOME_LIGHT, false, configMgr.getConfig()->mqttStateTopic, configMgr.getConfig()->mqttCommandTopic);
     backHomeLightRelay.onActivate([](bool isOn) {
         stateMgr.getState().setIsBackHomeLightEnabled(isOn);
     });
 
-    atticLightRelay.init(device, "Attic light", "atticLight", RELAY_ATTIC_LIGHT, false, configMgr.getConfig().mqttStateTopic, configMgr.getConfig().mqttCommandTopic);
+    atticLightRelay.init(device, "Attic light", "atticLight", RELAY_ATTIC_LIGHT, false, configMgr.getConfig()->mqttStateTopic, configMgr.getConfig()->mqttCommandTopic);
     atticLightRelay.onActivate([](bool isOn) {
         stateMgr.getState().setIsAtticLightEnabled(isOn);
     });
 
-    rainSensor.init(device, configMgr.getConfig().mqttStateTopic, RAIN_SENSOR_PIN, true);
-    streetClimateSensor.init(device, configMgr.getConfig().mqttStateTopic, DHT22_PIN);
+    rainSensor.init(device, configMgr.getConfig()->mqttStateTopic, RAIN_SENSOR_PIN, true);
+    streetClimateSensor.init(device, configMgr.getConfig()->mqttStateTopic, DHT22_PIN);
 
     ESP_LOGI("setup", "complete");
 }

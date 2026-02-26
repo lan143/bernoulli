@@ -3,8 +3,9 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <mqtt_config.h>
+#include <network/network_config.h>
 
-#define CURRENT_VERSION 1
+#define CURRENT_VERSION 2
 
 #define WIFI_SSID_LEN 32 + 1
 #define WIFI_PWD_LEN 64 + 1
@@ -20,15 +21,7 @@ struct Config
 {
     uint8_t version = CURRENT_VERSION;
 
-    bool isAPMode = true;
-    char wifiAPSSID[WIFI_SSID_LEN] = {0};
-    bool wifiAPHasPassword = false;
-    char wifiAPPassword[WIFI_PWD_LEN] = {0};
-
-    char wifiSSID[WIFI_SSID_LEN] = {0};
-    char wifiPassword[WIFI_PWD_LEN] = {0};
-
-    // MQTT
+    EDNetwork::Config network;
     EDMQTT::Config mqtt;
 
     bool mqttIsHADiscovery = true;

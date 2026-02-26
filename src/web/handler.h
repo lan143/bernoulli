@@ -9,15 +9,15 @@
 #include <ESPAsyncWebServer.h>
 #include <ConfigMgr.h>
 #include <healthcheck.h>
+#include <network/network.h>
 
 #include "config.h"
-#include "network/network.h"
 
 class Handler {
 public:
     Handler(
         EDConfig::ConfigMgr<Config>* configMgr,
-        NetworkMgr* networkMgr,
+        EDNetwork::NetworkMgr* networkMgr,
         EDHealthCheck::HealthCheck* healthCheck
     ) : _configMgr(configMgr), _networkMgr(networkMgr), _healthCheck(healthCheck) {
         _server = new AsyncWebServer(80);
@@ -28,6 +28,6 @@ public:
 private:
     AsyncWebServer* _server;
     EDConfig::ConfigMgr<Config>* _configMgr;
-    NetworkMgr* _networkMgr;
+    EDNetwork::NetworkMgr* _networkMgr;
     EDHealthCheck::HealthCheck* _healthCheck;
 };
